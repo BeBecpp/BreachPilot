@@ -10,7 +10,7 @@ It is built for the **Splunk Agentic Ops Hackathon** with a focus on the **Secur
 
 ## Live Demo
 
-**Vercel:** `PASTE_YOUR_VERCEL_URL_HERE`
+**Vercel:** `breach-pilot.vercel.app`
 
 Demo entity:
 
