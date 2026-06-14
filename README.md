@@ -1,156 +1,403 @@
-# BreachPilot: MCP-Powered Incident Commander for Splunk
+# BreachPilot
 
-BreachPilot is a security triage agent that turns Splunk events into an evidence-backed incident timeline, risk score, and analyst response plan. It is built for the Splunk Agentic Ops Hackathon Security track and targets the **Best Use of Splunk MCP Server** bonus prize.
+**MCP-powered security triage agent for Splunk**
 
-## Tagline
+BreachPilot is an agentic security investigation console that turns Splunk security logs into an evidence-backed incident timeline, risk score, and analyst response plan.
 
-An MCP-powered security triage agent that turns Splunk logs into an evidence-backed incident timeline, risk score, and analyst response plan.
+It is built for the **Splunk Agentic Ops Hackathon** with a focus on the **Security** track and the **Best Use of Splunk MCP Server** bonus prize.
 
-## Features
+---
 
-- Polished web dashboard for a 3-minute demo video.
-- Entity investigation for user, IP address, or host.
-- Multi-step agent workflow with visible MCP tool calls.
-- SPL query panel so judges can see the exact searches.
-- Demo mode with synthetic Splunk-style JSONL events.
-- Real mode adapter for Splunk MCP Server via JSON-RPC `tools/call`.
-- Risk scoring, evidence cards, attack path, and response actions.
-- Root-level `architecture_diagram.md` for Devpost requirements.
+## Live Demo
 
+**Vercel:** `PASTE_YOUR_VERCEL_URL_HERE`
 
-## Vercel live demo
+Demo entity:
 
-This repo is Vercel-ready. The public live demo uses a Node serverless function at `/api/investigate` with bundled synthetic Splunk-style security events, so it works without exposing Splunk credentials.
-
-```bash
-npm i -g vercel
-vercel login
-vercel
-vercel --prod
+```txt
+jane.admin
 ```
 
-For the full local Splunk MCP path, keep using the Python runtime described below.
+---
 
-## Quick start: demo mode
+## What BreachPilot Does
+
+Security analysts often lose time switching between multiple SPL searches after an alert. BreachPilot turns that manual triage process into a structured investigation workflow.
+
+Given a user, IP, or host, BreachPilot:
+
+1. Plans an investigation workflow.
+2. Runs scoped Splunk-style queries through the MCP investigation layer.
+3. Correlates authentication, VPN, admin, data access, endpoint, and network events.
+4. Builds an incident timeline.
+5. Calculates a risk score and severity.
+6. Generates analyst-ready evidence cards and response actions.
+7. Shows the SPL/MCP workflow transparently so the analyst can verify the result.
+
+BreachPilot is not a generic chatbot. It is a focused, human-in-the-loop security triage workflow designed for Splunk data.
+
+---
+
+## Demo Scenario
+
+The included demo dataset simulates a possible account takeover followed by suspicious data access.
+
+Entity:
+
+```txt
+jane.admin
+```
+
+Incident chain:
+
+```txt
+Multiple failed logins
+→ Successful login from same suspicious IP
+→ VPN session from unusual location
+→ Admin console access
+→ Sensitive customer export request
+→ Suspicious network egress
+→ Service error spike
+```
+
+Expected output:
+
+```txt
+Severity: Critical
+Risk Score: High
+Incident Type: Suspected account takeover and data exfiltration preparation
+Confidence: High
+```
+
+---
+
+## Key Features
+
+* **MCP-style investigation workflow**
+
+  * Shows each agent step from planning to response recommendation.
+
+* **Evidence-backed timeline**
+
+  * Converts raw security events into a chronological attack path.
+
+* **Risk scoring**
+
+  * Scores suspicious behavior based on authentication, access, data movement, and network signals.
+
+* **Analyst response plan**
+
+  * Recommends concrete next actions such as disabling sessions, resetting credentials, blocking IPs, and reviewing export logs.
+
+* **SPL query transparency**
+
+  * Displays the scoped SPL-style queries used during investigation.
+
+* **Demo and real integration modes**
+
+  * Demo mode works immediately with sample data.
+  * Real mode is structured for Splunk MCP Server / Splunk Enterprise integration.
+
+* **Vercel-ready**
+
+  * Includes a static frontend and serverless API for public live demo deployment.
+
+---
+
+## Architecture
+
+```txt
+User / Analyst
+    |
+    v
+BreachPilot Web Console
+    |
+    v
+Investigation API
+    |
+    v
+Agent Workflow Engine
+    |
+    +--> Query Planner
+    +--> MCP Client Adapter
+    +--> Evidence Correlator
+    +--> Risk Scoring Engine
+    +--> Response Recommendation Generator
+    |
+    v
+Splunk / Demo Security Events
+```
+
+See [`architecture_diagram.md`](./architecture_diagram.md) for the required architecture diagram.
+
+---
+
+## Tech Stack
+
+* Frontend: HTML, CSS, JavaScript
+* API: Vercel Serverless Function / Node.js
+* Local backend: Python
+* Data: JSONL synthetic Splunk-style security events
+* Deployment: Vercel
+* Target platform: Splunk Enterprise + Splunk MCP Server
+
+---
+
+## Project Structure
+
+```txt
+.
+├── index.html
+├── style.css
+├── app.js
+├── api/
+│   └── investigate.js
+├── app/
+│   ├── main.py
+│   ├── agent.py
+│   ├── mcp_client.py
+│   └── scoring.py
+├── data/
+│   └── breachpilot_events.jsonl
+├── scripts/
+│   └── load_sample_data_to_splunk.py
+├── architecture_diagram.md
+├── SUBMISSION.md
+├── FEEDBACK.md
+├── DEPLOY_VERCEL.md
+├── package.json
+├── vercel.json
+├── requirements.txt
+├── .env.example
+└── LICENSE
+```
+
+---
+
+## Run the Vercel Demo Locally
+
+Install Vercel CLI:
 
 ```bash
-cd breachpilot-splunk
+npm install -g vercel
+```
+
+Run locally:
+
+```bash
+vercel dev
+```
+
+Open:
+
+```txt
+http://localhost:3000
+```
+
+Test with:
+
+```txt
+jane.admin
+```
+
+---
+
+## Deploy to Vercel
+
+Import this repository into Vercel.
+
+Recommended settings:
+
+```txt
+Framework Preset: Other
+Root Directory: ./
+Build Command: empty
+Output Directory: empty
+Install Command: npm install
+```
+
+Then deploy.
+
+---
+
+## Run the Python Local Demo
+
+```bash
 python -m app.main
 ```
 
 Open:
 
-```text
+```txt
 http://127.0.0.1:8000
 ```
 
-Try these entities:
+Test with:
 
-```text
+```txt
 jane.admin
-45.77.12.8
-checkout-api-01
-maria.finance
 ```
 
-## Real Splunk MCP Server mode
+---
 
-1. Create a Splunk account and install Splunk Enterprise Trial or use Splunk Cloud.
-2. Install **Splunk MCP Server** from Splunkbase on the search head.
-3. Enable token authentication and grant MCP access capabilities to the user/role.
-4. Create an index named `breachpilot`.
-5. Enable HTTP Event Collector and load the sample data:
+## Environment Variables
 
-```bash
-export SPLUNK_HEC_URL=https://localhost:8088/services/collector/event
-export SPLUNK_HEC_TOKEN=YOUR_HEC_TOKEN
-python scripts/load_sample_data_to_splunk.py
-```
-
-Verify in Splunk:
-
-```spl
-index=breachpilot earliest=-24h | table _time sourcetype user src_ip host action status risk_signal risk_score message | sort _time
-```
-
-Run BreachPilot in real MCP mode:
+Copy the example env file:
 
 ```bash
 cp .env.example .env
-export MCP_MODE=real
-export MCP_SERVER_URL=http://localhost:8001/mcp
-export MCP_AUTH_TOKEN=YOUR_SPLUNK_MCP_TOKEN
-python -m app.main
 ```
 
-Different Splunk MCP deployments may expose different HTTP paths/transports. The adapter is intentionally small and configurable in `app/mcp_client.py`.
+Example values:
 
-## Core SPL used by the agent
+```env
+MCP_MODE=demo
+SPLUNK_HOST=https://localhost:8089
+SPLUNK_TOKEN=your_splunk_token_here
+SPLUNK_INDEX=breachpilot
+```
+
+Modes:
+
+```txt
+MCP_MODE=demo
+```
+
+Uses local synthetic events.
+
+```txt
+MCP_MODE=real
+```
+
+Uses the Splunk MCP integration path.
+
+---
+
+## Sample SPL Queries
+
+BreachPilot uses short, scoped investigation queries.
 
 ```spl
-index=breachpilot (user="jane.admin" OR src_ip="jane.admin" OR host="jane.admin") earliest=-24h
-| table _time sourcetype user src_ip host action status risk_signal risk_score message
+index=breachpilot user="jane.admin" earliest=-24h
+| table _time sourcetype user src_ip host action status risk_signal
 | sort _time
 ```
 
 ```spl
-index=breachpilot (user="jane.admin" OR src_ip="jane.admin" OR host="jane.admin") earliest=-24h action IN ("failed_login", "successful_login", "mfa_challenge", "vpn_login")
-| stats count values(status) as statuses values(risk_signal) as signals by user src_ip action
-| sort -count
+index=breachpilot user="jane.admin" action IN ("failed_login", "successful_login")
+| stats count by action src_ip
 ```
 
-## Demo story
-
-Entity: `jane.admin`
-
-The dataset simulates a possible account takeover followed by suspicious data access:
-
-- failed-login burst from `45.77.12.8`,
-- successful login from the same source,
-- VPN session from first-seen / unusual ASN,
-- admin console access,
-- sensitive customer export request,
-- suspicious DNS/proxy egress,
-- endpoint process anomaly,
-- checkout API error spike.
-
-Expected verdict: **Critical** risk with high confidence.
-
-## Repository structure
-
-```text
-app/                         Python agent, scoring, MCP adapter, local HTTP server
-web/                         Dashboard UI
-data/breachpilot_events.jsonl Synthetic Splunk-style sample events
-scripts/load_sample_data_to_splunk.py HEC loader for Splunk Enterprise / Cloud
-architecture_diagram.md       Required Devpost architecture diagram
-SUBMISSION.md                 Devpost-ready description and video script
-FEEDBACK.md                   Feedback prize notes
-LICENSE                       MIT license
+```spl
+index=breachpilot user="jane.admin" risk_signal=*
+| stats values(risk_signal) as signals count by user src_ip host
 ```
 
-## Testing
+```spl
+index=breachpilot (user="jane.admin" OR src_ip="45.77.12.8")
+| sort _time
+| table _time sourcetype user src_ip host action status risk_score risk_signal
+```
 
-No dependency is required to run the app. Optional pytest test:
+The goal is to keep investigation queries narrow, explainable, and analyst-verifiable.
+
+---
+
+## Splunk MCP Server Integration
+
+BreachPilot is designed around the Splunk MCP Server concept: connecting AI agents to Splunk data through controlled tool calls.
+
+The MCP client layer is responsible for:
+
+1. Receiving an investigation plan from the agent.
+2. Translating each step into a scoped Splunk query.
+3. Sending the query through the MCP/Splunk integration path.
+4. Returning normalized events to the evidence correlation engine.
+5. Preserving query transparency for human review.
+
+In demo mode, this same workflow runs against included synthetic events so judges can test the product without requiring a live Splunk instance.
+
+---
+
+## Loading Sample Data into Splunk
+
+The repository includes synthetic security events:
+
+```txt
+data/breachpilot_events.jsonl
+```
+
+To load events into Splunk via HEC, configure your environment:
+
+```env
+SPLUNK_HEC_URL=https://localhost:8088/services/collector
+SPLUNK_HEC_TOKEN=your_hec_token_here
+SPLUNK_INDEX=breachpilot
+```
+
+Then run:
 
 ```bash
-pip install -r requirements.txt
-pytest
+python scripts/load_sample_data_to_splunk.py
 ```
 
-Plain Python check:
+---
 
-```bash
-python -c "from app.agent import BreachPilotAgent; print(BreachPilotAgent(mode='demo').investigate('jane.admin')['score'])"
+## Why This Matters
+
+SOC teams often face alert fatigue and fragmented investigation workflows. A single alert may require authentication searches, VPN review, endpoint checks, data access validation, and network correlation.
+
+BreachPilot compresses that process into a transparent investigation workflow:
+
+```txt
+Alert/entity input
+→ MCP-driven Splunk evidence collection
+→ Correlated timeline
+→ Risk score
+→ Recommended response
 ```
 
-## Devpost submission checklist
+This helps analysts move faster while still keeping the human in control.
 
-- [ ] Public GitHub repository
-- [ ] MIT license visible at the repository root
-- [ ] README with setup and run instructions
-- [ ] Example dataset in `data/`
-- [ ] `architecture_diagram.md` at repository root
-- [ ] Public demo video under 3 minutes
-- [ ] Track: Security
-- [ ] Bonus prize target: Best Use of Splunk MCP Server
+---
+
+## Hackathon Fit
+
+BreachPilot aligns with the **Security** track because it helps security teams detect threats faster, investigate incidents more efficiently, and automate parts of the triage workflow using AI and Splunk data.
+
+It targets the **Best Use of Splunk MCP Server** bonus prize by demonstrating an agent-driven experience that connects an AI investigation workflow to Splunk-style operational security data.
+
+---
+
+## Demo Video Script
+
+A suggested script is included in:
+
+```txt
+SUBMISSION.md
+```
+
+Recommended flow:
+
+```txt
+Problem
+→ BreachPilot overview
+→ Live investigation of jane.admin
+→ Timeline, evidence, risk score
+→ MCP/SPL workflow transparency
+→ Security value
+```
+
+Keep the video under 3 minutes.
+
+---
+
+## License
+
+MIT License. See [`LICENSE`](./LICENSE).
+
+---
+
+## Author
+
+Built by BeBecpp for the Splunk Agentic Ops Hackathon.
