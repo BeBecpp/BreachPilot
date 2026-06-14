@@ -1,0 +1,15 @@
+{
+  "name": "breachpilot-splunk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MCP-powered security triage agent demo for the Splunk Agentic Ops Hackathon.",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod",
+    "local-python": "python -m app.main"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

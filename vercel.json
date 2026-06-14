@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/investigate",
+      "destination": "/api/investigate.js"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    }
+  ]
+}

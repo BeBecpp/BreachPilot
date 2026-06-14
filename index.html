@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BreachPilot Console</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="background-grid" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">BP</div>
+        <div>
+          <strong>BreachPilot</strong>
+          <span>MCP-Powered Incident Commander</span>
+        </div>
+      </div>
+      <div class="top-pills">
+        <span>Splunk MCP Server</span>
+        <span>Security Track</span>
+        <span>$1K Prize Target</span>
+        <span>Vercel Live Demo</span>
+      </div>
+    </header>
+
+    <section class="hero-card">
+      <div class="hero-copy">
+        <p class="eyebrow">Splunk Agentic Ops Hackathon</p>
+        <h1>Turn Splunk alerts into analyst-ready incident briefs.</h1>
+        <p class="subtitle">BreachPilot uses an agentic MCP workflow to collect evidence, correlate security events, score risk, and recommend response actions.</p>
+        <div class="hero-stats">
+          <div><strong id="heroEvents">--</strong><span>events correlated</span></div>
+          <div><strong id="heroSignals">--</strong><span>risk signals</span></div>
+          <div><strong id="heroQueries">--</strong><span>MCP tool calls</span></div>
+        </div>
+      </div>
+
+      <aside class="launch-card">
+        <div class="launch-head">
+          <span class="live-dot"></span>
+          <span>Investigation console</span>
+        </div>
+        <label for="entity">Entity to investigate</label>
+        <div class="command-input">
+          <span>$</span>
+          <input id="entity" value="jane.admin" placeholder="user, IP, or host" autocomplete="off" />
+        </div>
+        <div class="form-grid">
+          <div>
+            <label for="lookback">Lookback</label>
+            <select id="lookback">
+              <option value="-24h">Last 24 hours</option>
+              <option value="-7d">Last 7 days</option>
+              <option value="-1h">Last hour</option>
+            </select>
+          </div>
+          <div>
+            <label for="mode">Mode</label>
+            <select id="mode">
+              <option value="demo">Demo dataset</option>
+              <option value="real">Real Splunk MCP (local fallback)</option>
+            </select>
+          </div>
+        </div>
+        <button id="runBtn" class="primary-button">Run MCP Investigation</button>
+        <p class="hint">Try demo entities: <button class="link-button" data-entity="jane.admin">jane.admin</button>, <button class="link-button" data-entity="45.77.12.8">45.77.12.8</button>, <button class="link-button" data-entity="checkout-api-01">checkout-api-01</button></p>
+      </aside>
+    </section>
+
+    <section class="status-grid">
+      <article class="metric-card risk-card">
+        <div>
+          <p class="eyebrow">Risk score</p>
+          <h2 id="severity">Waiting</h2>
+          <p id="summary" class="summary">Start an investigation to build an evidence-backed incident brief.</p>
+        </div>
+        <div class="score-ring" id="scoreRing" style="--score:0">
+          <span id="score">--</span>
+          <small>/100</small>
+        </div>
+      </article>
+
+      <article class="metric-card compact-card">
+        <p class="eyebrow">Confidence</p>
+        <strong id="confidence">--</strong>
+        <span>evidence-backed verdict</span>
+      </article>
+
+      <article class="metric-card compact-card">
+        <p class="eyebrow">Runtime</p>
+        <strong id="duration">--</strong>
+        <span>local agent latency</span>
+      </article>
+    </section>
+
+    <section class="panel signal-panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Correlated attack path</p>
+          <h2>Incident narrative</h2>
+        </div>
+        <span id="caseId">Case waiting</span>
+      </div>
+      <div id="attackPath" class="attack-path empty">Run an investigation to reveal the kill-chain path.</div>
+      <div id="signals" class="chips"></div>
+    </section>
+
+    <section class="content-grid">
+      <section class="panel workflow-panel">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Agent plan</p>
+            <h2>MCP workflow</h2>
+          </div>
+          <span>human-in-the-loop</span>
+        </div>
+        <div id="workflow" class="workflow skeleton-list"></div>
+      </section>
+
+      <section class="panel actions-panel">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Response</p>
+            <h2>Recommended actions</h2>
+          </div>
+          <span>prioritized</span>
+        </div>
+        <div id="actions" class="actions skeleton-list"></div>
+      </section>
+    </section>
+
+    <section class="content-grid bottom-grid">
+      <section class="panel evidence-panel">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Evidence</p>
+            <h2>Evidence cards</h2>
+          </div>
+          <span>grouped by signal</span>
+        </div>
+        <div id="evidence" class="evidence skeleton-list"></div>
+      </section>
+
+      <section class="panel timeline-panel">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Timeline</p>
+            <h2>Event chronology</h2>
+          </div>
+          <span id="timelineCount">0 events</span>
+        </div>
+        <div id="timeline" class="timeline skeleton-list"></div>
+      </section>
+    </section>
+
+    <section class="panel query-panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Splunk transparency</p>
+          <h2>SPL queries executed through MCP</h2>
+        </div>
+        <span>scoped, auditable searches</span>
+      </div>
+      <div id="queries" class="queries skeleton-list"></div>
+    </section>
+
+    <section class="panel raw-panel">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Debug payload</p>
+          <h2>Raw incident brief JSON</h2>
+        </div>
+        <button id="copyBtn" class="secondary-button">Copy JSON</button>
+      </div>
+      <pre id="raw">{}</pre>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
